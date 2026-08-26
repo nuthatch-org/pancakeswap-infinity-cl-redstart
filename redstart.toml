@@ -1,0 +1,4 @@
+[project]
+name = "pancakeswap-infinity-cl-redstart"
+entry = "src/main.red"
+out_dir = "build"
