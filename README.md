@@ -195,9 +195,31 @@ subgraph validation error: [the graft base is invalid:
   deployment not found: QmVjXU7yQNyyLphPGqoz8iBzqu5YXphooFJn15JqZ6ZMFz]
 ```
 
-Only a node already indexing the base can graft onto it. Delete the `graft` block
-in `src/main.red` to deploy from scratch, as `v0.0.1` of the Studio deployment
-does.
+### If you hold the base
+
+Only a node already indexing `QmVjXU7yQNyyLphPGqoz8iBzqu5YXphooFJn15JqZ6ZMFz` can
+graft onto it — in practice, an indexer that was serving the original. If that is
+you, this is the whole recipe:
+
+```sh
+git clone https://github.com/nightswatchhq/pancakeswap-infinity-cl-redstart
+cd pancakeswap-infinity-cl-redstart
+redstart verify                       # proves it compiles, no deploy
+redstart deploy <name> --node http://<your-graph-node>:8020/
+```
+
+It inherits history to 113,581,821 and catches up ~4.6M blocks instead of ~71M.
+Nothing else needs changing; the `graft` block is already in `src/main.red`.
+
+### If you do not
+
+Delete the `graft` block from `src/main.red` and index from scratch. That is what
+the published deployment does — about three days on BSC from block 47,214,308,
+measured at ~267 blocks/sec.
+
+**Published:** subgraph `FBw4VNzH2FR3Q7xTfSW1XiCfpDCXXffPNQ1xa9hJSGxo`,
+deployment `QmbG7eTZXvaDNraEL1GTJXDsiGCC7czW4vSGgsv4vSRut3`. That build has no
+graft; it is this repository with the `graft` block removed.
 
 ### Schema compatibility
 
