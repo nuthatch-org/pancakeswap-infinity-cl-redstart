@@ -169,6 +169,57 @@ graft can carry the existing history across.
 
 ---
 
+## Grafting
+
+The manifest declares a graft onto the deployment this port replaces:
+
+```
+features:
+  - grafting
+graft:
+  base: QmVjXU7yQNyyLphPGqoz8iBzqu5YXphooFJn15JqZ6ZMFz
+  block: 113581821
+```
+
+113,581,821 is the block before the original's first deterministic abort. Grafting
+there inherits roughly 66 million blocks of already-indexed history and leaves
+about 4.6 million to catch up, instead of indexing BSC from 47,214,308.
+
+**This cannot be deployed to Subgraph Studio.** Grafting copies the base's entity
+store, so the node performing it must already hold that deployment, and Studio's
+graph-node holds only what is deployed to Studio. Attempting it fails at
+validation:
+
+```
+subgraph validation error: [the graft base is invalid:
+  deployment not found: QmVjXU7yQNyyLphPGqoz8iBzqu5YXphooFJn15JqZ6ZMFz]
+```
+
+Only a node already indexing the base can graft onto it. Delete the `graft` block
+in `src/main.red` to deploy from scratch, as `v0.0.1` of the Studio deployment
+does.
+
+### Schema compatibility
+
+Grafting requires the schema to be compatible with the base, which drove two
+decisions in `src/schema.red`:
+
+- **Ids are `Id<ID>`**, rendering `id: ID!`. `Id<String>` renders `String!`, which
+  graph-node accepts on its own but which no conventional subgraph declares, so
+  it would fail the compatibility check.
+- **Five entities are declared `mutable`.** `Swap`, `ModifyLiquidity`,
+  `Subscribe`, `Unsubscribe` and `Transfer` are append-only, so Redstart's
+  optimiser would infer `@entity(immutable: true)` for them. That changes
+  graph-node's storage layout, and the base declares all five
+  `@entity(immutable: false)`.
+
+Diffing the emitted `schema.graphql` against the base leaves **five** differences,
+all of them element nullability on `@derivedFrom` fields on `Transaction`
+(`[Swap]!` in the base, `[Swap!]!` here). Redstart has no syntax for a nullable
+list element, and whether graph-node's graft check cares is not something that
+can be established locally: only graph-node validates graft compatibility, at
+deploy time, against a node holding the base. Treat the graft as untested.
+
 ## Tests
 
 `redstart test` runs natively against a mock store. The suite is 20 tests, and the

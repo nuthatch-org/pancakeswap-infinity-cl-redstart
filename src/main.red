@@ -36,6 +36,20 @@ source PoolManager {
   startBlock: 47214308
 }
 
+// Graft onto the deployment this port replaces, at the block before its first
+// deterministic abort (the failure is at 113,581,822). That inherits ~66M blocks
+// of already-indexed history and leaves ~4.6M to catch up, instead of indexing
+// BSC from 47,214,308 from scratch.
+//
+// Grafting requires schema compatibility with the base, which is why the five
+// append-only entities in schema.red are declared `mutable`: the base has them
+// as `@entity(immutable: false)`, and Redstart's append-only inference would
+// otherwise flip them and change graph-node's storage layout.
+graft {
+  base: "QmVjXU7yQNyyLphPGqoz8iBzqu5YXphooFJn15JqZ6ZMFz"
+  block: 113581821
+}
+
 source PositionManager {
   abi: PositionManagerAbi
   network: "bsc"

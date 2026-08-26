@@ -1,5 +1,9 @@
 // Entities for the PancakeSwap Infinity CL subgraph.
 //
+// The five append-only entities carry `mutable` so they stay layout-compatible
+// with the graft base declared in main.red, which has all of them as
+// `@entity(immutable: false)`.
+//
 // A direct translation of schema.graphql from
 // https://github.com/NgoKimPhu/infinity-cl-subgraph. Ids stay in their original
 // string form on purpose: changing an id changes entity identity and would break
@@ -7,7 +11,7 @@
 // warning about `Id<Bytes>` being cheaper is correct and deliberately accepted.
 
 entity PoolManager {
-  id: Id<String>
+  id: Id<ID>
   poolCount: BigInt
   txCount: BigInt
   totalVolumeUSD: BigDecimal
@@ -19,16 +23,16 @@ entity PoolManager {
   totalValueLockedETH: BigDecimal
   totalValueLockedUSDUntracked: BigDecimal
   totalValueLockedETHUntracked: BigDecimal
-  owner: String
+  owner: ID
 }
 
 entity Bundle {
-  id: Id<String>
+  id: Id<ID>
   ethPriceUSD: BigDecimal
 }
 
 entity Token {
-  id: Id<String>
+  id: Id<ID>
   symbol: String
   name: String
   decimals: BigInt
@@ -43,12 +47,12 @@ entity Token {
   totalValueLockedUSD: BigDecimal
   totalValueLockedUSDUntracked: BigDecimal
   derivedETH: BigDecimal
-  whitelistPools: [String]
+  whitelistPools: [Pool]
   tokenDayData: [TokenDayData] derived from token
 }
 
 entity Pool {
-  id: Id<String>
+  id: Id<ID>
   createdAtTimestamp: BigInt
   createdAtBlockNumber: BigInt
   token0: Token
@@ -87,7 +91,7 @@ entity Pool {
 }
 
 entity Tick {
-  id: Id<String>
+  id: Id<ID>
   poolAddress: Option<String>
   tickIdx: BigInt
   pool: Pool
@@ -100,7 +104,7 @@ entity Tick {
 }
 
 entity Transaction {
-  id: Id<String>
+  id: Id<ID>
   blockNumber: BigInt
   timestamp: BigInt
   gasUsed: BigInt
@@ -112,8 +116,8 @@ entity Transaction {
   unsubscriptions: [Unsubscribe] derived from transaction
 }
 
-entity Swap {
-  id: Id<String>
+entity Swap mutable {
+  id: Id<ID>
   transaction: Transaction
   timestamp: BigInt
   pool: Pool
@@ -129,8 +133,8 @@ entity Swap {
   logIndex: Option<BigInt>
 }
 
-entity ModifyLiquidity {
-  id: Id<String>
+entity ModifyLiquidity mutable {
+  id: Id<ID>
   transaction: Transaction
   timestamp: BigInt
   pool: Pool
@@ -148,7 +152,7 @@ entity ModifyLiquidity {
 }
 
 entity UniswapDayData {
-  id: Id<String>
+  id: Id<ID>
   date: Int
   volumeETH: BigDecimal
   volumeUSD: BigDecimal
@@ -159,7 +163,7 @@ entity UniswapDayData {
 }
 
 entity PoolDayData {
-  id: Id<String>
+  id: Id<ID>
   date: Int
   pool: Pool
   liquidity: BigInt
@@ -180,7 +184,7 @@ entity PoolDayData {
 }
 
 entity PoolHourData {
-  id: Id<String>
+  id: Id<ID>
   periodStartUnix: Int
   pool: Pool
   liquidity: BigInt
@@ -201,7 +205,7 @@ entity PoolHourData {
 }
 
 entity TokenDayData {
-  id: Id<String>
+  id: Id<ID>
   date: Int
   token: Token
   volume: BigDecimal
@@ -218,7 +222,7 @@ entity TokenDayData {
 }
 
 entity TokenHourData {
-  id: Id<String>
+  id: Id<ID>
   periodStartUnix: Int
   token: Token
   volume: BigDecimal
@@ -235,7 +239,7 @@ entity TokenHourData {
 }
 
 entity Position {
-  id: Id<String>
+  id: Id<ID>
   tokenId: BigInt
   owner: String
   origin: String
@@ -245,8 +249,8 @@ entity Position {
   transfers: [Transfer] derived from position
 }
 
-entity Subscribe {
-  id: Id<String>
+entity Subscribe mutable {
+  id: Id<ID>
   tokenId: BigInt
   address: String
   transaction: Transaction
@@ -256,8 +260,8 @@ entity Subscribe {
   position: Position
 }
 
-entity Unsubscribe {
-  id: Id<String>
+entity Unsubscribe mutable {
+  id: Id<ID>
   tokenId: BigInt
   address: String
   transaction: Transaction
@@ -267,8 +271,8 @@ entity Unsubscribe {
   position: Position
 }
 
-entity Transfer {
-  id: Id<String>
+entity Transfer mutable {
+  id: Id<ID>
   tokenId: BigInt
   from: String
   to: String
