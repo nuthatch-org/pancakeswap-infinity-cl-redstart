@@ -1,6 +1,6 @@
 # pancakeswap-infinity-cl-redstart
 
-A [Redstart](https://github.com/nightswatchhq/redstart) port of the **PancakeSwap
+A [Redstart](https://github.com/nuthatch-org/redstart) port of the **PancakeSwap
 Infinity CL** subgraph, written because the deployed original has been dark since
 2026-08-02 and the reason it went dark is a single character.
 
@@ -202,7 +202,7 @@ graft onto it — in practice, an indexer that was serving the original. If that
 you, this is the whole recipe:
 
 ```sh
-git clone https://github.com/nightswatchhq/pancakeswap-infinity-cl-redstart
+git clone https://github.com/nuthatch-org/pancakeswap-infinity-cl-redstart
 cd pancakeswap-infinity-cl-redstart
 redstart verify                       # proves it compiles, no deploy
 redstart deploy <name> --node http://<your-graph-node>:8020/
