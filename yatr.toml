@@ -1,0 +1,44 @@
+# yatr - https://github.com/cargopete/yatr
+#
+# The redstart commands from the README. Deploying needs a Studio key and is not wired.
+
+[settings]
+cache = true
+
+# Not called `check`: that is yatr's builtin.
+[tasks.typecheck]
+desc = "Parse and type-check the .red sources (redstart check)"
+run = ["redstart check"]
+sources = ["src/**", "redstart.toml"]
+
+[tasks.fmt]
+desc = "Format the .red sources"
+run = ["redstart fmt"]
+no_cache = true
+
+[tasks.fmt-check]
+desc = "Fail if any .red file is unformatted"
+run = ["redstart fmt --check"]
+sources = ["src/**/*.red"]
+
+[tasks.test]
+desc = "The native test blocks (no WASM, no Docker)"
+run = ["redstart test"]
+sources = ["src/**", "redstart.toml"]
+
+[tasks.build]
+desc = "Emit schema.graphql, subgraph.yaml and mappings.ts into build/"
+run = ["redstart build"]
+sources = ["src/**", "redstart.toml"]
+outputs = ["build/schema.graphql", "build/subgraph.yaml", "build/src/**", "build/abis/**"]
+
+# Installs graph-cli into build/node_modules on first run, so build/ ends up near 200 MB.
+[tasks.verify]
+desc = "Build, then graph codegen + graph build to prove the output compiles"
+run = ["redstart verify"]
+sources = ["src/**", "redstart.toml"]
+
+[tasks.ci]
+desc = "fmt-check, typecheck, test, verify"
+depends = ["fmt-check", "typecheck", "test", "verify"]
+run = []
